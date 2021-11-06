@@ -69,12 +69,13 @@ function getFilesToCompare(allFiles) {
 }
 
 async function compareConfigs(currentFiles) {
+  const ruleFinders = await Promise.all(currentFiles.slice(0, 2).map(getRuleFinder));
   return {
     config1: path.basename(currentFiles[0]),
     config2: path.basename(currentFiles[1]),
     rules: rulesDifference(
-      await getRuleFinder(currentFiles[0]),
-      await getRuleFinder(currentFiles[1])
+      ruleFinders[0],
+      ruleFinders[1]
     )
   };
 }
