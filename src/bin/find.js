@@ -33,13 +33,15 @@ const getRuleURI = require('eslint-rule-documentation');
 const getRuleFinder = require('../lib/rule-finder');
 const cli = require('../lib/cli-util');
 
+module.exports = (async function() {
+
 const specifiedFile = argv._[0];
 const finderOptions = {
   omitCore: !argv.core,
   includeDeprecated: argv.include === 'deprecated',
   ext: argv.ext
 };
-const ruleFinder = getRuleFinder(specifiedFile, finderOptions);
+const ruleFinder = await getRuleFinder(specifiedFile, finderOptions);
 const errorOut = argv.error && !argv.n;
 let processExitCode = 0;
 
@@ -76,3 +78,8 @@ if (!argv.c && !argv.p && !argv.a && !argv.u && !argv.d) {
   cli.write();
 }
 process.exit(processExitCode);
+
+})().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

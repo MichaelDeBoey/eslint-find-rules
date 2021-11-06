@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const consoleLog = console.log; // eslint-disable-line no-console
 
 const stub = {
-  '../lib/rule-finder'() {
+  async '../lib/rule-finder'() {
     return {
       getCurrentRules() {}, // Noop
       getCurrentRulesDetailed() {} // Noop
@@ -32,10 +32,10 @@ describe('diff', () => {
     delete require.cache[require.resolve('yargs')];
   });
 
-  it('logs diff', () => {
+  it('logs diff', async () => {
     process.argv[2] = './foo';
     process.argv[3] = './bar';
-    proxyquire('../../src/bin/diff', stub);
+    await proxyquire('../../src/bin/diff', stub);
     assert.ok(
       console.log.calledWith( // eslint-disable-line no-console
         sinon.match(
@@ -45,11 +45,11 @@ describe('diff', () => {
     );
   });
 
-  it('logs diff verbosely', () => {
+  it('logs diff verbosely', async () => {
     process.argv[2] = '--verbose';
     process.argv[3] = './foo';
     process.argv[4] = './bar';
-    proxyquire('../../src/bin/diff', stub);
+    await proxyquire('../../src/bin/diff', stub);
     assert.ok(
       console.log.calledWith( // eslint-disable-line no-console
         sinon.match(
