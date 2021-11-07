@@ -3,6 +3,7 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 const consoleLog = console.log; // eslint-disable-line no-console
+const processExit = process.exit;
 
 const stub = {
   async '../lib/rule-finder'() {
@@ -15,6 +16,8 @@ const stub = {
   '../lib/object-diff': sinon.stub().returns([{'test-rule': {config1: 'foo-config', config2: 'bar-config'}}])
 };
 
+let exitStatus;
+
 describe('diff', () => {
   beforeEach(() => {
     process.argv = process.argv.slice(0, 2);
@@ -24,10 +27,18 @@ describe('diff', () => {
         consoleLog(...args);
       }
     });
+    let exitResolve;
+    exitStatus = new Promise(resolve => {
+      exitResolve = resolve;
+    });
+    process.exit = (status) => {
+      exitResolve(status);
+    };
   });
 
   afterEach(() => {
     console.log.restore(); // eslint-disable-line no-console
+    process.exit = processExit;
     // purge yargs cache
     delete require.cache[require.resolve('yargs')];
   });
@@ -35,7 +46,8 @@ describe('diff', () => {
   it('logs diff', async () => {
     process.argv[2] = './foo';
     process.argv[3] = './bar';
-    await proxyquire('../../src/bin/diff', stub);
+    proxyquire('../../src/bin/diff', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(
       console.log.calledWith( // eslint-disable-line no-console
         sinon.match(
@@ -49,7 +61,8 @@ describe('diff', () => {
     process.argv[2] = '--verbose';
     process.argv[3] = './foo';
     process.argv[4] = './bar';
-    await proxyquire('../../src/bin/diff', stub);
+    proxyquire('../../src/bin/diff', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(
       console.log.calledWith( // eslint-disable-line no-console
         sinon.match(

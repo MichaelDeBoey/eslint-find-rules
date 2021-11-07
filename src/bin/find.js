@@ -33,7 +33,7 @@ const getRuleURI = require('eslint-rule-documentation');
 const getRuleFinder = require('../lib/rule-finder');
 const cli = require('../lib/cli-util');
 
-module.exports = (async function() {
+(async function () {
 
 const specifiedFile = argv._[0];
 const finderOptions = {

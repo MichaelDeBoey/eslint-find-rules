@@ -34,9 +34,12 @@ describe('bin', () => {
       }
       consoleLog(...args);
     };
-    exitStatus = null;
+    let exitResolve;
+    exitStatus = new Promise(resolve => {
+      exitResolve = resolve;
+    });
     process.exit = status => {
-      exitStatus = status;
+      exitResolve(status);
     };
     process.argv = process.argv.slice(0, 2);
   });
@@ -59,117 +62,120 @@ describe('bin', () => {
       }
       consoleLog(...args);
     };
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.equal(callCount, 3); // eslint-disable-line no-console
   });
 
   it('option -c|--current', async () => {
     process.argv[2] = '-c';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getCurrentRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -p|--plugin', async () => {
     process.argv[2] = '-p';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getPluginRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -a|--all-available', async () => {
     process.argv[2] = '-a';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getAllAvailableRules.called);
     process.argv[2] = '--all-available';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getAllAvailableRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -a along with --ext', async () => {
     process.argv[2] = '-a';
     process.argv[3] = '--ext .json';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getAllAvailableRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -a along with multi --ext', async () => {
     process.argv[2] = '-a';
     process.argv[3] = '--ext .js';
     process.argv[4] = '--ext .json';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getAllAvailableRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -u|--unused', async () => {
     process.argv[2] = '-u';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 1);
     assert.ok(getUnusedRules.called);
-    assert.equal(exitStatus, 1);
   });
 
   it('options -u|--unused and no unused rules found', async () => {
     getUnusedRules.returns([]);
     process.argv[2] = '-u';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getUnusedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -u|--unused along with -n', async () => {
     process.argv[2] = '-u';
     process.argv[3] = '-n';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getUnusedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -u|--unused along with --no-error', async () => {
     process.argv[2] = '-u';
     process.argv[3] = '--no-error';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getUnusedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -d|--deprecated', async () => {
     process.argv[2] = '-d';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 1);
     assert.ok(getDeprecatedRules.called);
-    assert.equal(exitStatus, 1);
   });
 
   it('options -d|--deprecated and no deprecated rules found', async () => {
     getDeprecatedRules.returns([]);
     process.argv[2] = '-d';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getDeprecatedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -d|--deprecated along with -n', async () => {
     process.argv[2] = '-d';
     process.argv[3] = '-n';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getDeprecatedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('option -d|--deprecated along with --no-error', async () => {
     process.argv[2] = '-d';
     process.argv[3] = '--no-error';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getDeprecatedRules.called);
-    assert.equal(exitStatus, 0);
   });
 
   it('logs verbosely', async () => {
     process.argv[2] = '-c';
     process.argv[3] = '-v';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
     assert.ok(getCurrentRules.called);
   });
 
@@ -185,7 +191,8 @@ describe('bin', () => {
       }
     };
     process.argv[2] = '-c';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
   });
 
   it('does not log core rules with --no-core', async () => {
@@ -201,7 +208,8 @@ describe('bin', () => {
     };
     process.argv[2] = '-c';
     process.argv[3] = '--no-core';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
   });
 
   it('does not include deprecated rules by default', async () => {
@@ -216,7 +224,8 @@ describe('bin', () => {
       }
     };
     process.argv[2] = '-a';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
   });
 
   it('includes deprecated rules with --include deprecated', async () => {
@@ -232,7 +241,8 @@ describe('bin', () => {
     };
     process.argv[2] = '-a';
     process.argv[3] = '--include=deprecated';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
   });
 
   it('includes deprecated rules with -i deprecated', async () => {
@@ -249,6 +259,7 @@ describe('bin', () => {
     process.argv[2] = '-a';
     process.argv[3] = '-i';
     process.argv[4] = 'deprecated';
-    await proxyquire('../../src/bin/find', stub);
+    proxyquire('../../src/bin/find', stub);
+    assert.strictEqual(await exitStatus, 0);
   });
 });

@@ -17,7 +17,7 @@ const getSortedRules = require('../lib/sort-rules');
 const flattenRulesDiff = require('../lib/flatten-rules-diff');
 const stringifyRuleConfig = require('../lib/stringify-rule-config');
 
-module.exports = (async function() {
+(async function () {
 
 const files = [argv._[0], argv._[1]];
 const collectedRules = await Promise.all(getFilesToCompare(files).map(compareConfigs));
@@ -97,6 +97,8 @@ function rulesDifference(a, b) {
     )
   );
 }
+
+process.exit(0);
 
 })().catch((e) => {
   console.error(e);
