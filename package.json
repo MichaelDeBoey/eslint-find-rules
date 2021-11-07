@@ -76,6 +76,23 @@
       "commit-msg": "validate-commit-msg",
       "pre-commit": "opt --in pre-commit --exec \"npm run validate\""
     },
+    "validate-commit-msg": {
+      "types": [
+        "feat",
+        "fix",
+        "improvement",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "build",
+        "ci",
+        "breaking",
+        "revert",
+        "meta"
+      ]
+    },
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
