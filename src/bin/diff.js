@@ -100,7 +100,7 @@ function rulesDifference(a, b) {
 
 process.exit(0);
 
-})().catch((e) => {
+})().catch(/* istanbul ignore next */(e) => {
   console.error(e);
   process.exit(1);
 });

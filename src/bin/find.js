@@ -79,7 +79,7 @@ if (!argv.c && !argv.p && !argv.a && !argv.u && !argv.d) {
 }
 process.exit(processExitCode);
 
-})().catch((e) => {
+})().catch(/* istanbul ignore next */(e) => {
   console.error(e);
   process.exit(1);
 });
