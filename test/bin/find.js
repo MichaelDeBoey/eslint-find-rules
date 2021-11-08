@@ -34,13 +34,9 @@ describe('bin', () => {
       }
       consoleLog(...args);
     };
-    let exitResolve;
     exitStatus = new Promise(resolve => {
-      exitResolve = resolve;
+      process.exit = resolve;
     });
-    process.exit = status => {
-      exitResolve(status);
-    };
     process.argv = process.argv.slice(0, 2);
   });
 

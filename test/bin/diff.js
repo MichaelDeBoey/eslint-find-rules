@@ -27,13 +27,9 @@ describe('diff', () => {
         consoleLog(...args);
       }
     });
-    let exitResolve;
     exitStatus = new Promise(resolve => {
-      exitResolve = resolve;
+      process.exit = resolve;
     });
-    process.exit = (status) => {
-      exitResolve(status);
-    };
   });
 
   afterEach(() => {
